@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>島を開拓！サバイバルタイクーン</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="ui-top">
+        <div class="status-card gold-card">🪙 金: <span id="ui-gold">0</span></div>
+        <div class="status-card wood-card">🪵 木: <span id="ui-wood">0</span>/20</div>
+        <div class="status-card meat-card">🥩 肉: <span id="ui-meat">0</span>/10</div>
+    </div>
+
+    <button class="sound-btn" onclick="toggleSound()">🔊 音声: ON</button>
+
+    <div class="tutorial-overlay" id="tutorial">
+        👉 画面をドラッグ・スワイプして移動！<br>
+        木や獣に近づくと自動で伐採・狩りを開始！
+    </div>
+
+    <div id="joystick-container">
+        <div id="joystick-knob"></div>
+    </div>
+
+    <div class="pc-guide">
+        💻 PC操作: [WASD] または [矢印キー]<br>
+        マウスドラッグでも移動できます！
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script src="script.js"></script>
+</body>
+</html>
