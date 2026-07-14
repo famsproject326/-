@@ -157,7 +157,7 @@ function createFloatingText(x, y, text, color="#fff") {
     });
 }
 
-// --- 操作系 ---
+// --- 操作系（タッチ位置に出てくる可変ジョイスティック仕様） ---
 const keys = {};
 window.addEventListener("keydown", e => keys[e.key] = true);
 window.addEventListener("keyup", e => keys[e.key] = false);
@@ -169,19 +169,42 @@ let joystickActive = false;
 let joystickStart = { x: 0, y: 0 };
 let joystickVector = { x: 0, y: 0 };
 
-function handleStart(clientX, clientY) {
-    const rect = joystickContainer.getBoundingClientRect();
-    joystickStart = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
-    joystickActive = true;
-    document.getElementById("tutorial").style.display = "none";
-}
+// 初期状態では非表示にしておく
+joystickContainer.style.display = "none";
+joystickContainer.style.position = "absolute";
 
-function handleMove(clientX, clientY) {
+// 画面全体のタッチ開始イベント
+window.addEventListener("touchstart", e => {
+    // 画面の左半分をタッチしたときだけジョイスティックを出現させる
+    const touchX = e.touches[0].clientX;
+    if (touchX < window.innerWidth / 2) {
+        const touchY = e.touches[0].clientY;
+        
+        joystickActive = true;
+        joystickStart = { x: touchX, y: touchY };
+        
+        // ジョイスティックの真ん中が指の真下に来るように配置して表示
+        joystickContainer.style.left = `${touchX - 55}px`; // 110pxの半分
+        joystickContainer.style.top = `${touchY - 55}px`;
+        joystickContainer.style.display = "flex";
+        
+        // チュートリアル表示を消去
+        const tutorial = document.getElementById("tutorial");
+        if (tutorial) tutorial.style.display = "none";
+    }
+}, { passive: false });
+
+// タッチ中の移動イベント
+window.addEventListener("touchmove", e => {
     if (!joystickActive) return;
+    
+    const clientX = e.touches[0].clientX;
+    const clientY = e.touches[0].clientY;
+    
     const dx = clientX - joystickStart.x;
     const dy = clientY - joystickStart.y;
     const dist = Math.hypot(dx, dy);
-    const maxDist = 45;
+    const maxDist = 45; // ノブの最大移動半径
     
     const angle = Math.atan2(dy, dx);
     const intensity = Math.min(dist, maxDist) / maxDist;
@@ -191,40 +214,61 @@ function handleMove(clientX, clientY) {
         y: Math.sin(angle) * intensity
     };
 
+    // ジョイスティックの内側の丸（ノブ）だけをスライド
     const moveX = Math.cos(angle) * Math.min(dist, maxDist);
     const moveY = Math.sin(angle) * Math.min(dist, maxDist);
     joystickKnob.style.transform = `translate(${moveX}px, ${moveY}px)`;
-}
+    
+    // スマホブラウザ特有の画面引っ張りスクロールを防ぐ
+    e.preventDefault();
+}, { passive: false });
 
-function handleEnd() {
+// 指を離したとき
+window.addEventListener("touchend", () => {
     joystickActive = false;
     joystickVector = { x: 0, y: 0 };
     joystickKnob.style.transform = "translate(0px, 0px)";
-}
-
-joystickContainer.addEventListener("touchstart", e => {
-    handleStart(e.touches[0].clientX, e.touches[0].clientY);
+    joystickContainer.style.display = "none"; // 指を離したら非表示に
 });
-window.addEventListener("touchmove", e => {
-    if (joystickActive) {
-        handleMove(e.touches[0].clientX, e.touches[0].clientY);
-    }
-}, { passive: false });
-window.addEventListener("touchend", handleEnd);
 
+// PC操作（マウスドラッグ）も可変ジョイスティック対応にする
 let mouseDrag = false;
 window.addEventListener("mousedown", e => {
-    if (e.clientX < 200 && e.clientY > window.innerHeight - 200) {
-        handleStart(e.clientX, e.clientY);
+    if (e.clientX < window.innerWidth / 2) {
+        joystickActive = true;
         mouseDrag = true;
+        joystickStart = { x: e.clientX, y: e.clientY };
+        joystickContainer.style.left = `${e.clientX - 55}px`;
+        joystickContainer.style.top = `${e.clientY - 55}px`;
+        joystickContainer.style.display = "flex";
+        
+        const tutorial = document.getElementById("tutorial");
+        if (tutorial) tutorial.style.display = "none";
     }
 });
 window.addEventListener("mousemove", e => {
-    if (mouseDrag) handleMove(e.clientX, e.clientY);
+    if (!mouseDrag) return;
+    const dx = e.clientX - joystickStart.x;
+    const dy = e.clientY - joystickStart.y;
+    const dist = Math.hypot(dx, dy);
+    const maxDist = 45;
+    const angle = Math.atan2(dy, dx);
+    const intensity = Math.min(dist, maxDist) / maxDist;
+    
+    joystickVector = {
+        x: Math.cos(angle) * intensity,
+        y: Math.sin(angle) * intensity
+    };
+    const moveX = Math.cos(angle) * Math.min(dist, maxDist);
+    const moveY = Math.sin(angle) * Math.min(dist, maxDist);
+    joystickKnob.style.transform = `translate(${moveX}px, ${moveY}px)`;
 });
 window.addEventListener("mouseup", () => {
     mouseDrag = false;
-    handleEnd();
+    joystickActive = false;
+    joystickVector = { x: 0, y: 0 };
+    joystickKnob.style.transform = "translate(0px, 0px)";
+    joystickContainer.style.display = "none";
 });
 
 // --- ゲームループ & アップデート ---
