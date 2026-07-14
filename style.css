@@ -1,0 +1,138 @@
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #111;
+    color: #fff;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+/* ゲームキャンバス */
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-color: #2e3f22; /* 森の緑 */
+}
+
+/* 画面上部のステータスUI */
+.ui-top {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.status-card {
+    background: rgba(0, 0, 0, 0.75);
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 2px solid #555;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    font-size: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    pointer-events: auto;
+}
+
+.gold-card { border-color: #ffd700; color: #ffd700; }
+.wood-card { border-color: #cd853f; color: #deb887; }
+.meat-card { border-color: #ff6347; color: #ffa07a; }
+
+/* スマホ用操作ヒント */
+.tutorial-overlay {
+    position: absolute;
+    bottom: 110px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 20px;
+    border-radius: 15px;
+    font-size: 13px;
+    text-align: center;
+    pointer-events: none;
+    animation: pulse 1.5s infinite;
+    z-index: 5;
+    border: 1px solid #777;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+/* ジョイスティック */
+#joystick-container {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    width: 110px;
+    height: 110px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    touch-action: none;
+}
+
+#joystick-knob {
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    transition: transform 0.05s ease;
+}
+
+/* 音声ボタン */
+.sound-btn {
+    position: absolute;
+    top: 75px;
+    right: 15px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #fff;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+/* PC操作用の案内 */
+.pc-guide {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    background: rgba(0,0,0,0.6);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    pointer-events: none;
+    color: #ccc;
+    text-align: right;
+    border-left: 3px solid #ffcc00;
+}
+
+@media (max-width: 768px) {
+    .pc-guide { display: none; }
+}
