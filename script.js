@@ -85,14 +85,22 @@ const woodSellZone = { x: 120, y: 120, radius: 45, label: "木材売却所" };
 const meatSellZone = { x: 280, y: 120, radius: 45, label: "肉売却所" };
 const expandZone = { x: 200, y: 280, radius: 50, label: "領地拡大" };
 
-// 木の生成
+// 木の生成（ランダム配置を強化）
 function spawnTree(inInitial=false) {
+    // 領地内ならどこでも生えるように、角度と距離を完全にランダム化
     const angle = Math.random() * Math.PI * 2;
-    const dist = (inInitial ? 0.3 + Math.random() * 0.6 : 0.5 + Math.random() * 0.5) * territoryRadius;
+    // 領地の半径の 0.2 ～ 0.9 倍の範囲にランダムで生成
+    const dist = (0.2 + Math.random() * 0.7) * territoryRadius;
+    
     const x = 200 + Math.cos(angle) * dist;
     const y = 200 + Math.sin(angle) * dist;
     
-    if (Math.hypot(x - 200, y - 200) < 80) return; // スタート位置付近には置かない
+    // スタート地点（たき火やプレイヤー初期位置）付近には生やさない安全措置
+    if (Math.hypot(x - 200, y - 200) < 90) {
+        // もし中心近くだったら、もう一度やり直す（再帰）
+        spawnTree(inInitial);
+        return;
+    }
     
     trees.push({
         x: x,
@@ -103,6 +111,7 @@ function spawnTree(inInitial=false) {
         regenTime: 0
     });
 }
+
 
 // 獣（イノシシ）の生成
 function spawnBeast() {
